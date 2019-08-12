@@ -12,7 +12,7 @@ import os
 import requests
 import json
 import subprocess
-
+import XKModelConverter
 
 class Myframe(wx.Frame):
     
@@ -58,9 +58,12 @@ class Myframe(wx.Frame):
         btmRightVBox = wx.BoxSizer(wx.VERTICAL)
         tip2Lbl = wx.StaticText(panel,label = "响应数据",size = (80,20))
         open_button = wx.Button(panel,label = "打开本地json",size = (70,30))
+        convert_button = wx.Button(panel,label = "json To OC—Model")
         self.Bind(wx.EVT_BUTTON, self.openFile, open_button)
+        self.Bind(wx.EVT_BUTTON, self.convert, convert_button)
         btmRightVBox.Add(tip2Lbl,flag = wx.EXPAND|wx.ALL) # 添加组件
         btmRightVBox.Add(open_button) # 添加组件
+        btmRightVBox.Add(convert_button) # 添加组件
         self.content_text= wx.TextCtrl(panel,style = wx.TE_MULTILINE)
         btmRightVBox.Add(self.content_text,proportion = 3,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
         
@@ -92,12 +95,12 @@ class Myframe(wx.Frame):
     
     def addParamsBox(self,event):
         box = self.getParamsBox()
-        self.fgs.Add(box)
+        self.fgs.Add(box,flag = wx.EXPAND|wx.ALL)
         self.panel.Layout()
     
     def _addParamsBox(self):
         box = self.getParamsBox()
-        self.fgs.Add(box)
+        self.fgs.Add(box,flag = wx.EXPAND|wx.ALL)
         self.panel.Layout()
     
     def setParams(self):
@@ -133,9 +136,9 @@ class Myframe(wx.Frame):
         self.parmasDelBtnArr.append(deleteBtn)
         self.parmasBoxArr.append(parmasBox)
         self.Bind(wx.EVT_BUTTON, self.deleteClick, deleteBtn)
-        parmasBox.Add(tc1,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
-        parmasBox.Add(tc2,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
-        parmasBox.Add(deleteBtn,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
+        parmasBox.Add(tc1,proportion = 3,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
+        parmasBox.Add(tc2,proportion = 3,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
+        parmasBox.Add(deleteBtn,proportion = 1,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
         return parmasBox
 
     def request(self,event):     # 定义打开文件事件
@@ -170,13 +173,15 @@ class Myframe(wx.Frame):
     def onRadioBox(self,e):
         self.method = self.rbox.GetStringSelection()
         print(self.rbox.GetStringSelection(),' is clicked from Radio Box')
-
+    
+    def convert(self,event):     # 定义打开文件事件
+        XKModelConverter.ConvertDialog(self, "模型转化",self.content_text.GetValue()).Show()
 
 if __name__ == '__main__':
     # When this module is run (not imported) then create the app, the
     # frame, show it, and start the event loop.
 
     app = wx.App()
-    Myframe(None,title = "network to json",size = (600,400))
+    Myframe(None,title = "network to json",size = (800,500))
     app.MainLoop()
 
