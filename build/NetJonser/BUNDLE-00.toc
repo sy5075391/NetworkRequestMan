@@ -1,0 +1,3 @@
+([('NetJonser',
+   '/Users/James/Documents/我的小代码/NetJonser-Normal/dist/NetJonser',
+   'EXECUTABLE')],)

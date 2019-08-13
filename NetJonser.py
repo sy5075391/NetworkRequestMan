@@ -13,7 +13,7 @@ import requests
 import json
 import subprocess
 import XKModelConverter
-
+import HeaderConfigDialog
 class Myframe(wx.Frame):
     
 
@@ -42,15 +42,22 @@ class Myframe(wx.Frame):
         tipLbl = wx.StaticText(panel,label = "参数配置",size = (60,20))
         btmleftVBox.Add(tipLbl,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
         
+        header_button = wx.Button(panel,label = "Header配置",size = (70,30))
+        self.Bind(wx.EVT_BUTTON, self.headerConfigClick, header_button)
+        btmleftVBox.Add(header_button,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
             # 添加post get方式
         self.rbox = wx.RadioBox(panel, pos = (0,0), choices = ['GET','POST'],
                                 majorDimension = 1, style = wx.RA_SPECIFY_ROWS)
         self.rbox.Bind(wx.EVT_RADIOBOX,self.onRadioBox)
         btmleftVBox.Add(self.rbox)
         
-
+        # 滚动视图
+        list =  wx.ScrolledWindow(panel,style=wx.VSCROLL)
+        self.list = list
         self.fgs = wx.BoxSizer(wx.VERTICAL)
-        btmleftVBox.Add(self.fgs,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
+        list.SetSizer(self.fgs)
+        
+        btmleftVBox.Add(self.list,1,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
         add_button = wx.Button(panel,label = "add",pos = (0,0),size = (70,30))
         self.Bind(wx.EVT_BUTTON, self.addParamsBox, add_button)
         btmleftVBox.Add(add_button,border = 3) # 添加组件
@@ -71,10 +78,12 @@ class Myframe(wx.Frame):
         self._addParamsBox()
         self._addParamsBox()
         self._addParamsBox()
+        list.SetScrollbars(1, 1, 400, 500)
+        list.Layout()
         ## []下box
         btmBox = wx.BoxSizer()
         
-        btmBox.Add(btmleftVBox,proportion = 2,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
+        btmBox.Add(btmleftVBox,proportion = 3,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
 
         btmBox.Add(btmRightVBox,proportion = 5,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
         
@@ -92,6 +101,7 @@ class Myframe(wx.Frame):
         self.parmasBoxArr = []
         self.parmasTextArr = []
         self.method = "GET"
+        self.headerData = {}
     
     def addParamsBox(self,event):
         box = self.getParamsBox()
@@ -126,19 +136,20 @@ class Myframe(wx.Frame):
         self.parmasTextArr.pop(index)
         self.panel.Layout()
         self.fgs.Layout()
+        self.list.Layout()
     
     def getParamsBox(self):
         parmasBox = wx.BoxSizer() # 不带参数表示默认实例化一个水平尺寸器
-        tc1 = wx.TextCtrl(self.panel)
-        tc2 = wx.TextCtrl(self.panel)
+        tc1 = wx.TextCtrl(self.list)
+        tc2 = wx.TextCtrl(self.list)
         self.parmasTextArr.append([tc1,tc2])
-        deleteBtn = wx.Button(self.panel,label = "del",size = (40,30))
+        deleteBtn = wx.Button(self.list,label = "del",size = (40,30))
         self.parmasDelBtnArr.append(deleteBtn)
         self.parmasBoxArr.append(parmasBox)
         self.Bind(wx.EVT_BUTTON, self.deleteClick, deleteBtn)
-        parmasBox.Add(tc1,proportion = 3,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
-        parmasBox.Add(tc2,proportion = 3,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
-        parmasBox.Add(deleteBtn,proportion = 1,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
+        parmasBox.Add(tc1,proportion = 1,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
+        parmasBox.Add(tc2,proportion = 1,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
+        parmasBox.Add(deleteBtn,flag = wx.EXPAND|wx.ALL,border = 3) # 添加组件
         return parmasBox
 
     def request(self,event):     # 定义打开文件事件
@@ -149,10 +160,10 @@ class Myframe(wx.Frame):
  
         if self.method == "GET":
             print("GET")
-            r = requests.get(path,params = self.parmas)
+            r = requests.get(path,params = self.parmas,headers = self.headerData)
         else:
             print("GET")
-            r = requests.post(path, data = self.parmas)
+            r = requests.post(path, data = self.parmas,headers = self.headerData)
         
         r.encoding = 'utf-8'
         response = r.json()
@@ -165,9 +176,15 @@ class Myframe(wx.Frame):
         with open('data.json', 'w', encoding='utf-8') as file:
             file.write(str) #ensure_ascii=False可以消除json包含中文的乱码问题
         self.content_text.SetValue(str)
-
+    
+    def headerConfigClick(self,event):
+        def changeResult(y):
+            print(y)
+            self.headerData = y
+        HeaderConfigDialog.HeaderConfigDialog(self,"Header配置",self.headerData,changeResult).Show()
+    
+    
     def openFile(self,event):     # 定义打开文件事件
-       
         subprocess.call("open data.json",shell=True)
     
     def onRadioBox(self,e):
@@ -177,10 +194,11 @@ class Myframe(wx.Frame):
     def convert(self,event):     # 定义打开文件事件
         XKModelConverter.ConvertDialog(self, "模型转化",self.content_text.GetValue()).Show()
 
+
 if __name__ == '__main__':
     # When this module is run (not imported) then create the app, the
     # frame, show it, and start the event loop.
-
+    
     app = wx.App()
     Myframe(None,title = "network to json",size = (800,500))
     app.MainLoop()
