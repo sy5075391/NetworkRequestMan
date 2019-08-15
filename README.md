@@ -34,7 +34,7 @@ cd 到项目路径，
 sudo 获取权限，可能要求输入密码
 如果想要打出来的包有图标第一条命了替换：
 
-`pyinstaller --windowed --onefile --icon=sat_tool_icon.icns --clean --noconfirm NetJonser.py`
+`pyinstaller --windowed --onefile --icon=icon.icns --clean --noconfirm NetJonser.py`
 
 一般很少一次通过，主要是一些包导入问题和项目文件配置路径
 我遇到问题时找不到项目的配置文件
