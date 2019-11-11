@@ -59,9 +59,16 @@ class ConvertDialog(wx.Dialog):
                 
         else:
             self.convertToModel(realModelDic)
+            self.addPreClass()
             self.modelHTextCtrl.SetValue(self.resultModelStr)
             self.modelMTextCtrl.SetValue(self.resultModelStrForM)
-
+    
+    def addPreClass(self):
+        pre = ""
+        for className in self.preClasses:
+            pre = pre + "@class " + className + ";\n"
+        self.resultModelStr =  pre + "\n" + self.resultModelStr
+    
     def convertToModel(self,jsonDic,ClassName = "XKJsonModel"):
         total = "@interface "+ClassName+" : NSObject"
         self.insertMImpletion(ClassName)
@@ -74,6 +81,7 @@ class ConvertDialog(wx.Dialog):
                 innerClassName = "XK"+ key.title()
                 total = total+"@property(nonatomic, strong) "+innerClassName+ "  *"+key+";\n"
                 remainDatas.append([innerClassName,value])
+                self.preClasses.append(innerClassName)
             elif valueType == list:
                 innerClassName = "XK"+ key.title()
                 if len(value) > 0:
@@ -81,6 +89,7 @@ class ConvertDialog(wx.Dialog):
                     if type(dicOfList) == dict:
                         total = total+"@property(nonatomic, copy) NSArray <" +innerClassName+" *>*"+key+";\n"
                         remainDatas.append([innerClassName,dicOfList])
+                        self.preClasses.append(innerClassName)
                     elif type(dicOfList) == list:
                         total = total+"@property(nonatomic, copy) NSArray < NSArray*>*"+key+";\n"
                         #数组里嵌数组的数据太捉急 就不继续处理了
@@ -95,7 +104,7 @@ class ConvertDialog(wx.Dialog):
                 else:
                     total = total+"@property(nonatomic, copy) NSString *"+ key +";\n"
         
-        total = total + "end" + "\n\n"
+        total = total + "@end" + "\n\n"
         self.resultModelStr = self.resultModelStr + total
         for remainData in remainDatas:
             self.convertToModel(remainData[1],remainData[0])
