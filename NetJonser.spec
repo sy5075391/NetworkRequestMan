@@ -30,8 +30,8 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False )
+          console=False , icon='icon.icns')
 app = BUNDLE(exe,
              name='NetJonser.app',
-             icon=None,
+             icon='icon.icns',
              bundle_identifier=None)

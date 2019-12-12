@@ -58,6 +58,7 @@ class ConvertDialog(wx.Dialog):
             wx.MessageBox(repr(e), "错误" ,wx.OK | wx.ICON_INFORMATION)
                 
         else:
+            self.preClasses = []
             self.convertToModel(realModelDic)
             self.addPreClass()
             self.modelHTextCtrl.SetValue(self.resultModelStr)
