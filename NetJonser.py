@@ -101,7 +101,7 @@ class Myframe(wx.Frame):
         self.parmasBoxArr = []
         self.parmasTextArr = []
         self.method = "GET"
-        self.headerData = {}
+        self.headerData =  {'content-type': 'application/json'}
     
     def addParamsBox(self,event):
         box = self.getParamsBox()
@@ -163,7 +163,7 @@ class Myframe(wx.Frame):
             r = requests.get(path,params = self.parmas,headers = self.headerData)
         else:
             print("GET")
-            r = requests.post(path, data = self.parmas,headers = self.headerData)
+            r = requests.post(path, json=self.parmas,headers = self.headerData)
         
         r.encoding = 'utf-8'
         response = r.json()
